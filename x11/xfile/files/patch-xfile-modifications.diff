@@ -1,0 +1,26 @@
+diff --color -Nru xfile/mf/Makefile.Linux xfile.NEW/mf/Makefile.Linux
+--- xfile/mf/Makefile.Linux	2026-09-22 13:41:08
++++ xfile.NEW/mf/Makefile.Linux	2026-09-22 13:38:57
+@@ -1,7 +1,7 @@
+ # XFile Linux Makefile
+ 
+ # Installation prefix. Typically /usr or /usr/local.
+-PREFIX = /usr
++PREFIX = /opt/local
+ MANDIR = $(PREFIX)/share/man
+ SHAREDIR = $(PREFIX)/share/xfile
+ 
+@@ -9,10 +9,10 @@
+ # On recent Linuxen it's usually either /etc/X11/app-defaults, 
+ # /usr/share/X11/app-defaults or less likely /usr/lib/X11/app-defaults.
+ # Some symlink them one way or another.
+-APPLRESDIR = /etc/X11/app-defaults
++APPLRESDIR = $(PREFIX)/etc/X11/app-defaults
+ 
+-INCDIRS = -I/usr/local/include 
+-LIBDIRS = -L/usr/local/lib
++INCDIRS = -I/usr/local/include -I/opt/local/include -I/opt/X11/include 
++LIBDIRS = -L/usr/local/lib -L/opt/local/lib -L/opt/X11/lib
+ 
+ CFLAGS = -O2 -Wall
+ 

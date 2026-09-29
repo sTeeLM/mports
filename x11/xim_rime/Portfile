@@ -1,0 +1,57 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+#PortGroup           cmake 1.1
+
+name                xim_rime
+version             1.0.2
+categories          x11 devel
+platforms           darwin
+license             MIT
+maintainers         @sTeelm
+
+description         An XIM Server based on xcb-imdkit and Rime engine
+long_description    xim_rime is a standalone, lightweight, and asynchronous XIM (X Input Method) server implementing the Rime input method engine using xcb-imdkit and Xft.
+
+fetch.type          git
+git.url             https://git.madcat.cc/git/xim_rime.git
+
+git.branch          origin/master
+
+use_configure       no
+
+build.dir           ${worksrcpath}
+destroot.dir        ${worksrcpath}
+
+depends_build-append     port:kde-extra-cmake-modules \
+                         port:pkgconfig 
+
+depends_lib-append       port:xorg-libxcb \
+                         port:xorg-xcb-util \
+                         port:xorg-xcb-util-keysyms \
+                         port:xorg-xcb-imdkit \
+                         port:uthash \
+                         port:Xft2  \
+                         port:fontconfig \
+                         port:xorg-libX11 \
+                         port:librime-devel
+
+build.cmd           make
+build.target        all
+destroot.cmd        make
+destroot.target     install
+
+# MacPorts 自动化执行 build 阶段时，在解压目录下实际执行的命令等价于：
+# make -j${build.jobs} PREFIX=/opt/local CC=/usr/bin/clang
+build.args-append   PREFIX=${prefix} \
+                    CC=${configure.cc} \
+                    CFLAGS="${configure.cflags}" \
+                    LDFLAGS="${configure.ldflags}"
+
+# MacPorts 自动化执行 destroot（安装快照）阶段时，在解压目录下实际执行的命令等价于：
+# make install PREFIX=/opt/local DESTDIR=/opt/local/var/macports/build/.../destroot
+destroot.args-append PREFIX=${prefix} 
+
+# For local development / testing without a remote tarball release:
+# If you are installing from local source code directory, you can override worksrcpath:
+# worksrcpath        /path/to/your/local/xim_rime_source

@@ -1,0 +1,72 @@
+# -*- coding: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+
+PortSystem          1.0
+
+name                xnedit
+version             1.6.1
+categories          x11 wms
+platforms           darwin
+license             LGPL-2.1
+maintainers         nomaintainer
+description         A fast and classic X11 text editor, based on NEdit, with full unicode support and antialiased text rendering. (Private SSH Git)
+
+# =========================================================================
+# 1. 核心：配置 MacPorts 内置的原生 Git 拉取策略
+# =========================================================================
+fetch.type          git
+git.url             https://git.madcat.cc/git/xnedit.git
+
+# 显式指定拉取的分支。
+# 注意：MacPorts 规范中，如果要拉取主分支，必须在前面补上 origin/ 前缀！
+git.branch          origin/master
+
+
+# 2. 补丁声明
+# patch.pre_args      -p1
+# patchfiles          patch-emwm-modifications.diff
+
+# 3. 依赖声明
+depends_lib         port:motif \
+                    port:xorg-libX11 \
+                    port:xorg-libXt \
+                    port:xorg-libXext \
+                    port:xorg-libXinerama \
+                    port:xorg-libXrandr \
+                    port:libiconv
+
+# 4. 编译参数（指定为 Linux 目标）
+use_configure       no
+# 完全接管并重写整个编译阶段
+build {
+    # 构造你完全自定义的单行或者多行命令
+    # 在这里你可以爱怎么写怎么写，绝对不会有任何多余的默认参数干扰
+    set my_build_command "LDFLAGS=\"-L/opt/local/lib -L/opt/X11/lib -framework CoreFoundation -liconv\" CFLAGS=\"-I/opt/local/include -I/opt/X11/include\" make generic"
+    set my_doc_command "make docs"
+    set my_desk_command "sed s:%PREFIX%:/opt/local:g resources/desktop/xnedit.desktop.template > resources/desktop/xnedit.desktop"
+
+    # 让系统在当前源码工作区（worksrcpath）下强制执行你的命令
+    system -W ${worksrcpath} "${my_build_command}"
+    system -W ${worksrcpath} "${my_doc_command}"
+    system -W ${worksrcpath} "${my_desk_command}"
+}
+
+# 5. 安装阶段
+
+destroot {
+    # 1. 强制在 MacPorts 的虚拟打包沙盒内创建目标目录结构
+    #    ${destroot} 代表沙盒根路径，${prefix} 默认代表 /opt/local
+    file mkdir ${destroot}${prefix}/bin
+    file mkdir ${destroot}${prefix}/share/icons
+    file mkdir ${destroot}${prefix}/share/applications
+    file mkdir ${destroot}${prefix}/share/man/man1
+    file mkdir ${destroot}${prefix}/etc/X11/app-defaults
+    
+    # 2. 纯手工把编译好的 emwm 可执行文件复制到沙盒的 bin 目录下
+    #    ${worksrcpath} 代表源码根目录
+    xinstall -m 755 ${worksrcpath}/source/xnedit ${destroot}${prefix}/bin/xnedit
+    xinstall -m 755 ${worksrcpath}/source/xnc ${destroot}${prefix}/bin/xnc
+    xinstall -m 644 ${worksrcpath}/resources/desktop/xnedit.png ${destroot}${prefix}/share/icons/xnedit.png 
+    xinstall -m 644 ${worksrcpath}/doc/NEdit.ad ${destroot}${prefix}/etc/X11/app-defaults/NEdit
+    xinstall -m 644 ${worksrcpath}/doc/xnedit.man ${destroot}${prefix}/share/man/man1/xnedit.1
+    xinstall -m 644 ${worksrcpath}/resources/desktop/xnedit.desktop ${destroot}${prefix}/share/applications/xnedit.desktop
+}

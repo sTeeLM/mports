@@ -1,0 +1,75 @@
+# -*- coding: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+
+PortSystem          1.0
+
+name                emwm
+version             2.1.0
+categories          x11 wms
+platforms           darwin
+license             LGPL-2.1
+maintainers         nomaintainer
+description         Enhanced Motif Window Manager (Private SSH Git)
+
+# =========================================================================
+# 1. 核心：配置 MacPorts 内置的原生 Git 拉取策略
+# =========================================================================
+fetch.type          git
+git.url             https://git.madcat.cc/git/emwm.git
+
+# 显式指定拉取的分支。
+# 注意：MacPorts 规范中，如果要拉取主分支，必须在前面补上 origin/ 前缀！
+git.branch          origin/master
+
+
+# 2. 补丁声明
+patch.pre_args      -p1
+patchfiles          patch-emwm-modifications.diff
+
+# 3. 依赖声明
+depends_lib         port:motif \
+                    port:xorg-libX11 \
+                    port:xorg-libXt \
+                    port:xorg-libXext \
+                    port:xorg-libXinerama \
+                    port:xorg-libXrandr
+
+# 4. 编译参数（指定为 Linux 目标）
+use_configure       no
+# 完全接管并重写整个编译阶段
+build {
+    # 构造你完全自定义的单行或者多行命令
+    # 在这里你可以爱怎么写怎么写，绝对不会有任何多余的默认参数干扰
+    set my_custom_command "make Linux"
+    
+    # 让系统在当前源码工作区（worksrcpath）下强制执行你的命令
+    system -W ${worksrcpath} "${my_custom_command}"
+}
+
+# 5. 安装阶段
+
+destroot {
+    # 1. 强制在 MacPorts 的虚拟打包沙盒内创建目标目录结构
+    #    ${destroot} 代表沙盒根路径，${prefix} 默认代表 /opt/local
+    file mkdir ${destroot}${prefix}/bin
+    file mkdir ${destroot}${prefix}/share/man/man1
+    file mkdir ${destroot}${prefix}/share/man/man4
+    file mkdir ${destroot}${prefix}/etc/X11
+    file mkdir ${destroot}${prefix}/etc/X11/app-defaults
+    
+    # 2. 纯手工把编译好的 emwm 可执行文件复制到沙盒的 bin 目录下
+    #    ${worksrcpath} 代表源码根目录
+    xinstall -m 755 ${worksrcpath}/src/emwm ${destroot}${prefix}/bin/emwm
+    
+    # 3. 如果有说明文档，也可以手工复制过去
+    if {[file exists ${worksrcpath}/src/emwm.1]} {
+        xinstall -m 644 ${worksrcpath}/src/emwm.1 ${destroot}${prefix}/share/man/man1/emwm.1
+    }
+
+    if {[file exists ${worksrcpath}/src/emwmrc.4]} {
+        xinstall -m 644 ${worksrcpath}/src/emwmrc.4 ${destroot}${prefix}/share/man/man4/emwmrc.4
+    }
+    
+    # 4. 自定义：如果你希望把 EMWM 的示例配置文件自动打包进系统供后续参考
+    xinstall -m 644 ${worksrcpath}/src/system.emwmrc ${destroot}${prefix}/etc/X11/system.emwmrc
+    xinstall -m 644 ${worksrcpath}/src/Emwm.ad ${destroot}${prefix}/etc/X11/app-defaults/Emwm
+}

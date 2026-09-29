@@ -1,0 +1,39 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cmake 1.1
+
+name                xorg-xcb-imdkit
+version             1.0.9
+categories          x11 devel
+platforms           darwin
+license             LGPL-2.1+
+maintainers         @steelm
+
+description         An implementation of XIM protocol in XCB
+long_description    xcb-imdkit is a lightweight and asynchronous XIM (X Input Method) \
+                    server/client protocol implementation using XCB, maintained by the Fcitx team.
+
+fetch.type          git
+git.url             https://git.madcat.cc/git/xcb-imdkit
+git.branch          origin/master
+
+patch.pre_args      -p1
+patchfiles          patch-xcb-imdkit-modifications.diff
+
+depends_build-append \
+                    port:kde-extra-cmake-modules \
+                    port:pkgconfig
+
+depends_lib-append  \
+                    port:xorg-libxcb \
+                    port:xorg-xcb-proto \
+                    port:xorg-xcb-util \
+                    port:xorg-xcb-util-keysyms \
+                    port:uthash
+
+configure.args-append \
+                    -DCMAKE_INSTALL_PREFIX=/opt/local \
+                    -DCMAKE_BUILD_TYPE=Release 
+
+
