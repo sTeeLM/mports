@@ -1,0 +1,46 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem              1.0
+
+name                    mtpaint-modified
+version                 3.51
+revision                0
+categories              graphics
+license                 GPL-3+
+maintainers             nomaintainer
+description             Mark Tyler's Painting Program
+long_description        mtPaint is a painting program which Mark Tyler developed \
+                        from scratch so he could easily create pixel art and \
+                        manipulate digital photos.
+homepage                http://mtpaint.sourceforge.net/
+platforms               darwin
+master_sites            sourceforge:mtpaint
+use_bzip2               yes
+
+fetch.type              git
+git.url                 https://git.madcat.cc/git/mtPaint.git
+
+git.branch              origin/master
+
+
+depends_build           port:pkgconfig
+
+depends_lib             port:gtk3 \
+                        port:tiff \
+                        port:openjpeg \
+                        port:webp \
+                        port:jasper \
+                        port:lcms2 \
+                        port:ImageMagick  
+
+configure.args          gtk3 \
+                        tiff \
+                        jpeg \
+                        webp \
+                        jp2v2 \
+                        man \
+                        imagick \
+                        lcms2 \
+                        intl  \
+                        --prefix=${prefix} \
+                        --mandir=${prefix}/share/man
