@@ -4,7 +4,7 @@ PortSystem          1.0
 #PortGroup           cmake 1.1
 
 name                xim_rime
-version             1.0.2
+version             1.0.3
 categories          x11 devel
 platforms           darwin
 license             MIT
